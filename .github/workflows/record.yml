@@ -1,0 +1,63 @@
+name: Record and transcribe Melody FM
+
+on:
+  schedule:
+    # 01:40 UTC = 09:40 Singapore time. The script waits until 10:00 before it records,
+    # so a late start of up to about 20 minutes is fine.
+    - cron: "40 1 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      test_minutes:
+        description: "Test run: record this many minutes starting now. Use 0 for a normal run."
+        default: "2"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: melody-record
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: whisper-model-small-v1
+
+      - name: Install packages
+        run: pip install -r requirements.txt
+
+      - name: Record, transcribe and upload
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          APPS_SCRIPT_SECRET: ${{ secrets.APPS_SCRIPT_SECRET }}
+        run: python cloud_record.py --test-minutes "${{ github.event.inputs.test_minutes || '0' }}"
+
+      - name: Save run details (no transcript, no audio)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manifest
+          path: work/manifest.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Keep the schedule alive
+        if: always()
+        run: |
+          date -u +"last run %Y-%m-%d %H:%M UTC" > heartbeat.txt
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add heartbeat.txt
+          git commit -m "heartbeat" || true
+          git push || true
