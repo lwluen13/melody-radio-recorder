@@ -33,7 +33,10 @@ jobs:
         with:
           path: ~/.cache/huggingface
           key: whisper-model-small-v1
-
+          
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        
       - name: Install packages
         run: pip install -r requirements.txt
 
