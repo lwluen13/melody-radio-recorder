@@ -278,7 +278,7 @@ def main():
         name = f"test-cloud-{now.date()}.txt"
     else:
         win_start, win_end = ten, ten + dt.timedelta(hours=1)
-        name = f"{now.date()}.txt"
+        name = f"cloud-{now.date()}.txt"
         if now >= win_end:
             sys.exit("It is already past 11:00 Singapore time. Nothing to record.")
         wait = (win_start - now).total_seconds()
