@@ -282,8 +282,8 @@ def main():
         if now >= win_end:
             sys.exit("It is already past 11:00 Singapore time. Nothing to record.")
         wait = (win_start - now).total_seconds()
-        if wait > 3600:
-            sys.exit("Started more than an hour before 10:00. Stopping.")
+        if wait > 10800:
+            sys.exit("Started more than three hours before 10:00. Stopping.")
         if wait > 0:
             log(f"Waiting {int(wait)} seconds until 10:00 Singapore time...")
             time.sleep(wait)
