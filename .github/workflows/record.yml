@@ -4,7 +4,7 @@ on:
   schedule:
     # 01:40 UTC = 09:40 Singapore time. The script waits until 10:00 before it records,
     # so a late start of up to about 20 minutes is fine.
-    - cron: "40 1 * * 1-5"
+    - cron: "30 0 * * 1-5"
   workflow_dispatch:
     inputs:
       test_minutes:
